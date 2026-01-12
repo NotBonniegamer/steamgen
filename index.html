@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Generator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #121212;
+    color: #ffffff;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  input {
+    width: 250px;
+    padding: 10px;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #6a0dad;
+    border: none;
+    color: white;
+    border-radius: 5px;
+  }
+  button:hover {
+    background-color: #7e1fff;
+  }
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Code Generator</h1>
+  <input type="text" id="codeBox" readonly placeholder="Hier erscheint der Code">
+  <button onclick="generateCode()">Code generieren</button>
+  <button onclick="copyCode()">Code kopieren</button>
+</div>
+
+<script>
+  function generateCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 12; i++) {
+      const randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
+      code += randomChar;
+      if ((i + 1) % 4 === 0 && i !== 11) {
+        code += '-';
+      }
+    }
+    document.getElementById('codeBox').value = code;
+  }
+
+  function copyCode() {
+    const codeBox = document.getElementById('codeBox');
+    codeBox.select();
+    codeBox.setSelectionRange(0, 99999); // Für mobile Geräte
+    document.execCommand('copy');
+    alert('Code kopiert: ' + codeBox.value);
+  }
+</script>
+
+</body>
+</html>
