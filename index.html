@@ -1,11 +1,9 @@
-//this is not working and was just a test for learning
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Code Generator</title>
+<title>Automatischer Code Generator</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -17,9 +15,7 @@
     background-color: #121212;
     color: #ffffff;
   }
-  h1 {
-    margin-bottom: 20px;
-  }
+  h1 { margin-bottom: 20px; }
   input {
     width: 250px;
     padding: 10px;
@@ -35,47 +31,75 @@
     border: none;
     color: white;
     border-radius: 5px;
+    margin: 5px;
   }
-  button:hover {
-    background-color: #7e1fff;
-  }
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  button:hover { background-color: #7e1fff; }
+  iframe {
+    width: 400px;
+    height: 300px;
+    margin-top: 20px;
+    border: 2px solid #6a0dad;
   }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>Code Generator</h1>
-  <input type="text" id="codeBox" readonly placeholder="Hier erscheint der Code">
-  <button onclick="generateCode()">Code generieren</button>
-  <button onclick="copyCode()">Code kopieren</button>
+<h1>Automatischer Code Generator</h1>
+<input type="text" id="codeBox" readonly placeholder="Hier erscheint der Code">
+<div>
+  <button onclick="startGeneration(200)">200 Codes generieren</button>
+  <button onclick="startGeneration(Infinity)">Infinite</button>
+  <button onclick="stopGeneration()">Stop</button>
 </div>
 
-<script>
-  function generateCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for (let i = 0; i < 12; i++) {
-      const randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
-      code += randomChar;
-      if ((i + 1) % 4 === 0 && i !== 11) {
-        code += '-';
-      }
-    }
-    document.getElementById('codeBox').value = code;
-  }
+<iframe id="targetFrame" src="https://store.steampowered.com/account/redeemwalletcode"></iframe>
 
-  function copyCode() {
-    const codeBox = document.getElementById('codeBox');
-    codeBox.select();
-    codeBox.setSelectionRange(0, 99999); // Für mobile Geräte
-    document.execCommand('copy');
-    alert('Code kopiert: ' + codeBox.value);
+<script>
+let running = false;
+
+function generateCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 12; i++) {
+    const randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
+    code += randomChar;
+    if ((i + 1) % 4 === 0 && i !== 11) code += '-';
   }
+  document.getElementById('codeBox').value = code;
+  return code;
+}
+
+async function insertCodeInIframe(code) {
+  const iframe = document.getElementById('targetFrame');
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    const input = doc.querySelector('input'); // Passe selector an der kleinen Seite an
+    if (input) input.value = code;
+    // Optional: Klick auf Button in der kleinen Seite
+    // const button = doc.querySelector('button');
+    // if (button) button.click();
+  } catch (e) {
+    console.warn('Kann iframe nicht bearbeiten – Same-Origin Policy?', e);
+  }
+}
+
+async function startGeneration(count) {
+  running = true;
+  let i = 0;
+  while (running && i < count) {
+    const code = generateCode();
+    await insertCodeInIframe(code);
+    i++;
+    await new Promise(r => setTimeout(r, 1000)); // 1 Sekunde Pause
+    // Reload iframe nach jedem Code
+    document.getElementById('targetFrame').contentWindow.location.reload();
+    await new Promise(r => setTimeout(r, 1000)); // Warte kurz nach reload
+  }
+}
+
+function stopGeneration() {
+  running = false;
+}
 </script>
 
 </body>
